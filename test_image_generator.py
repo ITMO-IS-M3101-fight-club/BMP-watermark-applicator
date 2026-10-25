@@ -18,7 +18,6 @@ def create_test_bmp(filename):
         f.write(file_header)
         f.write(info_header)
         f.write(pixel_data)
-    print(f"Создан файл: {filename}")
 
 if __name__ == "__main__":
     create_test_bmp("tests/test_2x2.bmp")
