@@ -10,3 +10,11 @@ add_executable(run_test
 )
 
 target_include_directories(run_test PRIVATE include)
+
+add_executable(watermark_test
+    src/main_watermark_test.cpp
+    src/ImageBMP.cpp
+    src/Watermark.cpp
+)
+
+target_include_directories(watermark_test PRIVATE include)
