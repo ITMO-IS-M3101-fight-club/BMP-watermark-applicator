@@ -1,17 +1,33 @@
+#include <charconv>
 #include <cstring>
 #include <iostream>
 
 #include "ImageBMP.h"
 #include "Watermark.h"
 
+namespace {
+const double kDefaultTransparencyCoef = 0.4;
 struct ProgramOptions {
     char* original_file_path = nullptr;
     char* watermark_file_path = nullptr;
     char* result_file_path = nullptr;
+
+    double transparency_coef = kDefaultTransparencyCoef;
 };
 
-namespace {
-const double kTransparityCoef = 0.3;
+double ParseDoubleFromChars(const char* str) {
+    double res{};
+    auto [ptr, ec] = std::from_chars(str, str + std::strlen(str), res);
+
+    if (ec == std::errc()) {
+        return res;
+    } else if (ec == std::errc::invalid_argument) {
+        std::cerr << "Error occurred while parsing double: provided value is not a digit\n";
+    } else if (ec == std::errc::result_out_of_range) {
+        std::cout << "Error occured while parsing double: provided value is out of double\n";
+    }
+    return kDefaultTransparencyCoef;
+}
 
 bool AppendOption(
     ProgramOptions& program_options,
@@ -29,6 +45,11 @@ bool AppendOption(
 
     if (strcmp(option, "--result") == 0 || strcmp(option, "-r") == 0) {
         program_options.result_file_path = provided_value;
+        return true;
+    }
+
+    if (strcmp(option, "--transparency") == 0 || strcmp(option, "-t") == 0) {
+        program_options.transparency_coef = ParseDoubleFromChars(provided_value);
         return true;
     }
 
@@ -113,7 +134,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (!applyWatermark(image, watermark, kTransparityCoef)) {
+    if (!applyWatermark(image, watermark, program_options.transparency_coef)) {
         std::cerr << "Error: failed to apply watermark.\n";
         std::cerr << "Check image dimensions and alpha value.\n";
         return 1;

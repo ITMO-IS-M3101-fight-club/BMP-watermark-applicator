@@ -10,7 +10,7 @@ const std::string kWatermarkFilename = "watermark.bmp";
 const std::string kResultFilename = "result.bmp";
 const std::string kOversizedFilename = "oversized.bmp";
 
-const double kTransparityAlphaCoef = 0.3;
+const double kTransparencyCoef = 0.3;
 
 const int kLoadingErrorCode = 1;
 const int kApplyWatermarkErrorCode = 2;
@@ -34,7 +34,7 @@ int main() {
         return kLoadingErrorCode;
     }
 
-    if (!applyWatermark(image, mark, kTransparityAlphaCoef)) {
+    if (!applyWatermark(image, mark, kTransparencyCoef)) {
         std::cerr << "Error while applying watermark\n";
         return kApplyWatermarkErrorCode;
     }
@@ -69,7 +69,7 @@ int main() {
         std::cerr << "Error while loading " << kOversizedFilename << '\n';
         return kLoadingErrorCode;
     }
-    if (applyWatermark(image, oversized, kTransparityAlphaCoef)) {
+    if (applyWatermark(image, oversized, kTransparencyCoef)) {
         std::cerr << "ERROR: Oversized watermark successful\n";
         return kBadTestsPassErrorCode;
     }
