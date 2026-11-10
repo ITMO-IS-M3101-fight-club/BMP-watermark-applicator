@@ -39,7 +39,7 @@ jobs:
           -t 0.4
 
     - name: Upload Result Image
-      uses: actions/artifacts/upload-artifact@v4
+      uses: actions/upload-artifact@v4
       with:
         name: watermark-result-${{ matrix.os }}
         path: ./result_big_images.bmp
