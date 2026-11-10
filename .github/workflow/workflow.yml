@@ -1,0 +1,45 @@
+name: BMP Watermark applicator
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: cmake -B build -S . -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Run App
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          EXE="./build/bin/watermark.exe"
+        else
+          EXE="./build/bin/watermark"
+        fi
+        
+        $EXE \
+          -o ./tests/bmp-large-2000px.bmp \
+          -w ./tests/blue-bmp-24-bit.bmp \
+          -r ./result_big_images.bmp \
+          -t 0.4
+
+    - name: Upload Result Image
+      uses: actions/artifacts/upload-artifact@v4
+      with:
+        name: watermark-result-${{ matrix.os }}
+        path: ./result_big_images.bmp
