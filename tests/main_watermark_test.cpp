@@ -33,23 +33,7 @@ int main() {
         std::cerr << "Error loading " << kWatermarkFilename << '\n';
         return kLoadingErrorCode;
     }
-    std::cout << "Original pixel (1,1): ";
 
-    const uint8_t* originalPixel = image.pixel(1, 1);
-
-    for (int c = 0; c < 3; ++c) {
-        std::cout << static_cast<int>(originalPixel[c]) << " ";
-    }
-
-    std::cout << "\nWatermark pixel (0,0): ";
-
-    const uint8_t* watermarkPixel = mark.pixel(0, 0);
-
-    for (int c = 0; c < 3; ++c) {
-        std::cout << static_cast<int>(watermarkPixel[c]) << " ";
-    }
-
-    std::cout << '\n';
     if (!applyWatermark(image, mark, kTransparencyCoef)) {
         std::cerr << "Error while applying watermark\n";
         return kApplyWatermarkErrorCode;

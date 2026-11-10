@@ -10,7 +10,7 @@ A program which applies a watermark for BMP images.
 ```bash
 cmake -S . -B build
 cmake --build build
-./build/watermark_test.exe
+cd tests && ../build/tests/watermark_test && cd ..
 ```
 Then check the result.bmp
 
