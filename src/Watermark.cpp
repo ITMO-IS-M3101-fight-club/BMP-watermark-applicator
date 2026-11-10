@@ -1,11 +1,15 @@
 #include "Watermark.h"
 
+#include <cmath>
+#include <iostream>
+
 bool applyWatermark(ImageBMP& image, const ImageBMP& watermark, double alpha) {
     if (alpha < 0.0 || alpha > 1.0 ||
         image.width() <= 0 || image.height() <= 0 ||
         watermark.width() <= 0 || watermark.height() <= 0 ||
         watermark.width() > image.width() ||
         watermark.height() > image.height()) {
+        std::cerr << "Invalid arguments for applyWatermark()\n";
         return false;
     }
 
@@ -18,9 +22,8 @@ bool applyWatermark(ImageBMP& image, const ImageBMP& watermark, double alpha) {
             const uint8_t* mark = watermark.pixel(x, y);
 
             for (int color = 0; color < 3; ++color) {
-                original[color] = static_cast<uint8_t>(
-                    original[color] * (1.0 - alpha) + mark[color] * alpha
-                );
+                original[color] = static_cast<uint8_t>(std::lround(
+                    original[color] * (1.0 - alpha) + mark[color] * alpha));
             }
         }
     }

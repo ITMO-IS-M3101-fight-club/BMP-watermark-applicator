@@ -1,18 +1,25 @@
 #include "ImageBMP.h"
+
 #include <fstream>
 #include <iostream>
-#include <cmath>
 
 bool ImageBMP::load(const std::string& filename) {
     std::ifstream in(filename, std::ios::binary);
-    if (!in) { std::cerr << "Cannot open " << filename << "\n"; return false; }
+    if (!in) {
+        std::cerr << "Cannot open " << filename << "\n";
+        return false;
+    }
 
     in.read(reinterpret_cast<char*>(&fileHeader_), sizeof(fileHeader_));
     in.read(reinterpret_cast<char*>(&infoHeader_), sizeof(infoHeader_));
 
-    if (fileHeader_.bfType != 0x4D42) { std::cerr << "Not a BMP\n"; return false; }
+    if (fileHeader_.bfType != 0x4D42) {
+        std::cerr << "Not a BMP\n";
+        return false;
+    }
     if (infoHeader_.biBitCount != 24 || infoHeader_.biCompression != 0) {
-        std::cerr << "Only 24-bit uncompressed BMP supported\n"; return false;
+        std::cerr << "Only 24-bit uncompressed BMP supported\n";
+        return false;
     }
 
     const int w = infoHeader_.biWidth;
@@ -36,7 +43,10 @@ bool ImageBMP::load(const std::string& filename) {
 
 bool ImageBMP::save(const std::string& filename) const {
     std::ofstream out(filename, std::ios::binary);
-    if (!out) { std::cerr << "Cannot write " << filename << "\n"; return false; }
+    if (!out) {
+        std::cerr << "Cannot write " << filename << "\n";
+        return false;
+    }
 
     const int w = infoHeader_.biWidth;
     const int h = std::abs(infoHeader_.biHeight);
@@ -46,7 +56,7 @@ bool ImageBMP::save(const std::string& filename) const {
     BMPFileHeader fh = fileHeader_;
     BMPInfoHeader ih = infoHeader_;
     fh.bfOffBits = sizeof(BMPFileHeader) + sizeof(BMPInfoHeader);
-    fh.bfSize    = fh.bfOffBits + imageSize;
+    fh.bfSize = fh.bfOffBits + imageSize;
     ih.biSizeImage = imageSize;
 
     out.write(reinterpret_cast<const char*>(&fh), sizeof(fh));

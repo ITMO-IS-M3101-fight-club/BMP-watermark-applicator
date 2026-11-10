@@ -1,0 +1,80 @@
+name: BMP Watermark applicator
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -S . -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/build/bin
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Show build files
+        shell: bash
+        run: |
+          echo "Build directory contents:"
+          find ./build -type f
+
+      - name: Run Unit Tests
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            TEST_EXE=$(find ./build -type f -name "watermark_test.exe" | head -n 1)
+          else
+            TEST_EXE=$(find ./build -type f -name "watermark_test" | head -n 1)
+          fi
+
+          if [ -z "$TEST_EXE" ] || [ ! -f "$TEST_EXE" ]; then
+            echo "ERROR: Test executable not found!"
+            find ./build -type f
+            exit 1
+          fi
+
+          echo "Running tests: $TEST_EXE"
+
+          (cd tests && "../${TEST_EXE#./}")
+
+      - name: Run App
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            EXE=$(find ./build -type f -name "watermark.exe" | head -n 1)
+          else
+            EXE="./build/bin/watermark"
+          fi
+
+          if [ -z "$EXE" ] || [ ! -f "$EXE" ]; then
+            echo "ERROR: Executable not found!"
+            exit 1
+          fi
+
+          echo "Running executable: $EXE"
+
+          "$EXE" \
+            -o ./tests/bmp-large-2000px.bmp \
+            -w ./tests/blue-bmp-24-bit.bmp \
+            -r ./result_big_images.bmp \
+            -t 0.4
+
+      - name: Upload Result Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: watermark-result-${{ matrix.os }}
+          path: ./result_big_images.bmp
+          if-no-files-found: error
